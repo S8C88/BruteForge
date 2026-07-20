@@ -7,12 +7,8 @@ Plugin-based architecture. Each protocol is a self-registering module.
 from abc import ABC, abstractmethod
 import argparse
 import concurrent.futures
-import importlib
-import inspect
 import logging
 import os
-import pkgutil
-import queue
 import socket
 import sys
 import threading
