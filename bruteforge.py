@@ -15,6 +15,7 @@ import pkgutil
 import queue
 import socket
 import sys
+import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -74,7 +75,7 @@ def list_plugins() -> List[str]:
 
 
 # ---------------------------------------------------------------------------
-# Bulit-in plugins — defined here, not in plugins/ dir
+# Built-in plugins — defined here, not in plugins/ dir
 # ---------------------------------------------------------------------------
 
 @register
@@ -301,6 +302,8 @@ class WordlistManager:
 class ThrottleManager:
     delay: float = 0.0
     _last_call: float = field(default_factory=time.time)
+    # CWE-362: protect shared _last_call across threads
+    _lock: threading.Lock = field(default_factory=threading.Lock)
 
     def wait(self):
         if self.delay <= 0:
@@ -308,7 +311,8 @@ class ThrottleManager:
         elapsed = time.time() - self._last_call
         if elapsed < self.delay:
             time.sleep(self.delay - elapsed)
-        self._last_call = time.time()
+        with self._lock:
+            self._last_call = time.time()
 
 
 # ---------------------------------------------------------------------------
