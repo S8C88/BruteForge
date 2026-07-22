@@ -360,8 +360,9 @@ class TestSSHPlugin(unittest.TestCase):
     @unittest.skipIf(not _HAS_PARAMIKO, "paramiko not installed")
     @patch("paramiko.SSHClient")
     def test_auth_failure(self, mock_ssh):
+        import paramiko
         client = MagicMock()
-        client.connect.side_effect = Exception("bad auth")
+        client.connect.side_effect = paramiko.AuthenticationException("bad auth")
         mock_ssh.return_value = client
         result = self.plugin.authenticate("10.0.0.1", 22, "admin", "bad", timeout=5)
         self.assertFalse(result["success"])
